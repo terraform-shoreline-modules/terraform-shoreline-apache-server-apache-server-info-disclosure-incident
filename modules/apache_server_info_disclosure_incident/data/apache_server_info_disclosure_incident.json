@@ -1,0 +1,146 @@
+{
+  "name": "apache_server_info_disclosure_incident",
+  "description": "The Apache Server Info Disclosure Incident refers to a security vulnerability in Apache servers that enables an attacker to gain access to sensitive system information. This type of incident involves an unauthorized user exploiting a flaw in the Apache server configuration to obtain confidential information such as server version, installed modules, and other system details. Attackers can use this information to launch further attacks on the system, compromise data, or disrupt services. It is important to address this incident type promptly to prevent any potential security breaches.",
+  "params": [
+    {
+      "name": "PARAMETER",
+      "value": ""
+    },
+    {
+      "name": "HOSTNAME",
+      "value": ""
+    },
+    {
+      "name": "DIRECTORY_",
+      "value": ""
+    },
+    {
+      "name": "SERVER_IP_ADDRESS",
+      "value": ""
+    },
+    {
+      "name": "N",
+      "value": ""
+    },
+    {
+      "name": "IP_ADDRESS",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Apache Server Info Disclosure Incident\nThe Apache Server Info Disclosure Incident refers to a security vulnerability in Apache servers that enables an attacker to gain access to sensitive system information. This type of incident involves an unauthorized user exploiting a flaw in the Apache server configuration to obtain confidential information such as server version, installed modules, and other system details. Attackers can use this information to launch further attacks on the system, compromise data, or disrupt services. It is important to address this incident type promptly to prevent any potential security breaches."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache version"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `apache2 -v`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache configuration files for sensitive information"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `grep -Ri \"${DIRECTORY_}\" /etc/apache2/`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache access logs for suspicious activity"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -n 100 /var/log/apache2/access.log | grep -i \"GET /\"`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache error logs for any errors or warnings"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `tail -n 100 /var/log/apache2/error.log`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Apache mod_status module for any unusual activity"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `curl -s http://${SERVER_IP_ADDRESS}/server-status?auto | awk '/^BusyWorkers/ {print $2}'`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Misconfiguration of Apache server settings that allowed unauthorized access to sensitive server information."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_apache_config_check()"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Update the Apache server software to the latest version to address known vulnerabilities."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_apache()"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Disable server info disclosure by modifying the Apache configuration file (httpd.conf) to remove the \"ServerSignature\" and \"ServerTokens\" directives."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_httpd_config_backup_and_disable_signatures()"
+    }
+  ]
+}
